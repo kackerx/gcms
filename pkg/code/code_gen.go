@@ -3,9 +3,11 @@ package code
 
 func init() {
 	ErrMap = map[int]*RespError{
-		ErrParameterInvalid: {Code: ErrParameterInvalid, Message: "参数校验失败: %s"},
-		ErrUserNotFound:     {Code: ErrUserNotFound, Message: "用户未找到: %s"},
-		ErrUserAuthFaild:    {Code: ErrUserAuthFaild, Message: "用户认证失败"},
-		ErrUserExist:        {Code: ErrUserExist, Message: "用户已存在: %s"},
+		ErrParameterInvalid:    {Code: ErrParameterInvalid, Message: "参数校验失败: %s"},
+		ErrUserNotFound:        {Code: ErrUserNotFound, Message: "用户未找到: %s"},
+		ErrUserAuthFaild:       {Code: ErrUserAuthFaild, Message: "用户认证失败"},
+		ErrUserExist:           {Code: ErrUserExist, Message: "用户已存在: %s"},
+		ErrUserNotExist:        {Code: ErrUserNotExist, Message: "用户不存在: %s"},
+		ErrUserPasswordInvalid: {Code: ErrUserPasswordInvalid, Message: "用户密码错误"},
 	}
 }

@@ -15,4 +15,10 @@ const (
 
 	// ErrUserExist @message=用户已存在: %s
 	ErrUserExist = 100103
+
+	// ErrUserNotExist @message=用户不存在: %s
+	ErrUserNotExist = 100104
+
+	// ErrUserPasswordInvalid @message=用户密码错误
+	ErrUserPasswordInvalid = 100105
 )

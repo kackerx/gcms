@@ -7,6 +7,8 @@ data:
     source: root:Wasd4044@tcp(127.0.0.1:3306)/my_db?charset=utf8mb4&parseTime=true
   redis:
     addr: 127.0.0.1:6379
+    password: ""
+    db: 0
     read_timeout: 0.2s
 security:
   jwt:

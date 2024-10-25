@@ -55,4 +55,5 @@ func registerUserPath(r *gin.Engine, handler *handler.UserHandler) {
 	userRoute := r.Group("/user")
 	userRoute.GET("haha", handler.GetUser)
 	userRoute.POST("/register", handler.Register)
+	userRoute.POST("/login", handler.Login)
 }

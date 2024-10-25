@@ -11,6 +11,7 @@ type User struct {
 
 	Username string `gorm:"not null;default:'';unique;size:255;common:用户名"`
 	Password string `gorm:"not null;default:'';size:128;comment:用户密码"`
+	NickName string `gorm:"not null;default:'';size:64;comment:昵称"`
 	Age      int    `gorm:"not null;default:0;comment:年龄"`
 }
 

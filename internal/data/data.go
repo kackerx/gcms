@@ -52,7 +52,7 @@ func (d *Data) Create(userPo *po.User) (int, error) {
 
 func (d *Data) SelectByCond(cond map[string]any) (*po.User, bool, error) {
 	var user po.User
-	err := d.db.Select("id").Where(cond).Take(&user).Error
+	err := d.db.Where(cond).Take(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, false, nil

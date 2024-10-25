@@ -34,3 +34,19 @@ func (h *UserHandler) Register(c *gin.Context) {
 
 	resp.Success(c, res)
 }
+
+func (h *UserHandler) Login(c *gin.Context) {
+	var req service.LoginReq
+	if err := c.ShouldBind(&req); err != nil {
+		resp.ErrWithCode(c, code.ErrParameterInvalid, err.Error())
+		return
+	}
+
+	login, err := h.userService.Login(c, &req)
+	if err != nil {
+		resp.Err(c, err)
+		return
+	}
+
+	resp.Success(c, login)
+}

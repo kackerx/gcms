@@ -37,6 +37,8 @@ type Database struct {
 
 type Redis struct {
 	Addr        string        `json:"addr,omitempty"`
+	Password    string        `json:"password,omitempty"`
+	DB          int           `json:"db"`
 	ReadTimeout time.Duration `json:"read_timeout,omitempty"`
 }
 
