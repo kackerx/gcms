@@ -29,8 +29,10 @@ func ConvertToPO(do *domain.User) *User {
 
 func ConvertToDO(po *User) *domain.User {
 	return &domain.User{
+		ID:       po.ID,
 		UserName: po.Username,
 		Password: po.Password,
+		NickName: po.NickName,
 		Age:      po.Age,
 	}
 }

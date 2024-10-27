@@ -12,11 +12,13 @@ import (
 	"gcms/internal/conf"
 	"gcms/internal/data/po"
 	"gcms/pkg/code"
+	"gcms/pkg/log"
 	"gcms/vars"
 )
 
 type Data struct {
-	db *gorm.DB
+	logger *log.Logger
+	db     *gorm.DB
 }
 
 func NewDb(c *conf.Data) (*gorm.DB, func(), error) {
@@ -30,13 +32,13 @@ func NewDb(c *conf.Data) (*gorm.DB, func(), error) {
 	}, nil
 }
 
-func NewData(c *conf.Data) (data *Data, cleanup func(), err error) {
+func NewData(c *conf.Data, logger *log.Logger) (data *Data, cleanup func(), err error) {
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{})
 	if err != nil {
 		return
 	}
 
-	return &Data{db: db}, func() {
+	return &Data{db: db, logger: logger}, func() {
 		fmt.Println("close db")
 	}, nil
 }

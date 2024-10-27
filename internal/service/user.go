@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
+	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 
 	"gcms/internal/domain"
@@ -11,6 +14,7 @@ import (
 )
 
 type UserService struct {
+	*Service
 	ds *domain.UserDomainService
 }
 
@@ -34,16 +38,37 @@ type LoginResp struct {
 	NickName  string `json:"nick_name"`
 }
 
-func NewUserService(ds *domain.UserDomainService) *UserService {
-	return &UserService{ds: ds}
+type UserDetailReq struct {
 }
 
-func (s *UserService) GetUser(c *gin.Context) {
-	return
+type UserDetailResp struct {
+	NickName string
+	Age      int
+}
+
+func NewUserService(svc *Service, ds *domain.UserDomainService) *UserService {
+	return &UserService{Service: svc, ds: ds}
+}
+
+func (s *UserService) GetUser(ctx context.Context) (*UserDetailResp, error) {
+	token, err := s.cache.Get(ctx, fmt.Sprintf(sessionKey, 1))
+	if err != nil {
+		return nil, err
+	}
+
+	parseToken, err := s.jwt.ParseToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	s.logger.Info("token", zap.String("uid", parseToken.UserId))
+	return &UserDetailResp{}, nil
 }
 
 func (s *UserService) Login(ctx context.Context, req *LoginReq) (resp *LoginResp, err error) {
-	user, exist, err := s.ds.GetUserByName(req.Username)
+	span := opentracing.SpanFromContext(ctx)
+	span.SetTag("req", req)
+	user, exist, err := s.ds.GetUserByName(ctx, req.Username)
 	if err != nil {
 		return
 	}
@@ -56,14 +81,23 @@ func (s *UserService) Login(ctx context.Context, req *LoginReq) (resp *LoginResp
 		return nil, code.NewErrWithCode(code.ErrUserPasswordInvalid)
 	}
 
+	token, err := s.jwt.GenToken(user.UserName, time.Now().Add(time.Hour))
+	if err != nil {
+		return
+	}
+
+	if err = s.cache.Set(ctx, fmt.Sprintf(sessionKey, user.ID), token, time.Hour); err != nil {
+		return
+	}
+
 	return &LoginResp{
-		SessionID: "110",
-		NickName:  "",
+		SessionID: token,
+		NickName:  user.NickName,
 	}, nil
 }
 
 func (s *UserService) Register(ctx context.Context, req *RegisterReq) (resp *RegisterResp, err error) {
-	_, exist, err := s.ds.GetUserByName(req.Username)
+	_, exist, err := s.ds.GetUserByName(ctx, req.Username)
 	if err != nil {
 		return
 	}

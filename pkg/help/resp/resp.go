@@ -37,7 +37,7 @@ func Err(c *gin.Context, err error) {
 		respError(c, respErr.Code, respErr.Message)
 		return
 	}
-	ErrWithCode(c, respErr.Code)
+	UnknownError(c, err)
 }
 
 func ErrWithCode(c *gin.Context, errCode int, args ...any) {

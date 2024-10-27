@@ -1,7 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
-package gms
+package main
 
 import (
 	"github.com/gin-gonic/gin"
@@ -14,21 +14,24 @@ import (
 	"gcms/internal/middleware"
 	"gcms/internal/server"
 	"gcms/internal/service"
+	"gcms/pkg/log"
 )
 
 var domainSet = wire.NewSet(domain.NewUserDomainService)
 
-var dataSet = wire.NewSet(data.NewData, data.NewUserRepo)
+var dataSet = wire.NewSet(data.NewData, data.NewUserRepo, data.NewCache)
 
-var serviceSet = wire.NewSet(service.NewUserService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService)
 
-var handlerSet = wire.NewSet(handler.NewUserHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler)
 
 var serverSet = wire.NewSet(server.NewHTTPServer)
 
 var jwtSet = wire.NewSet(middleware.NewJwt)
 
-func wireApp(confData *conf.Data, confJwt *conf.JWT) (*gin.Engine, func(), error) {
+var logSet = wire.NewSet(log.NewLog)
+
+func wireApp(confData *conf.Data, confJwt *conf.JWT, logger *log.Logger) (*gin.Engine, func(), error) {
 	panic(wire.Build(
 		jwtSet,
 		domainSet,

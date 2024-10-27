@@ -1,6 +1,9 @@
 package cache
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type Cache interface {
 	Set(ctx context.Context, key string, val any, expiration time.Duration) error

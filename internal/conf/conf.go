@@ -7,9 +7,21 @@ import (
 )
 
 type Conf struct {
-	Server   *Server   `json:"server"`
-	Data     *Data     `json:"data"`
-	Security *Security `json:"security"`
+	Env      string    `mapstructure:"env"`
+	Server   *Server   `mapstructure:"server"`
+	Data     *Data     `mapstructure:"data"`
+	Security *Security `mapstructure:"security"`
+	Log      *Log      `mapstructure:"log"`
+}
+
+type Log struct {
+	LogLevel    string `mapstructure:"log_level"`
+	MaxSize     int    `mapstructure:"max_size"`
+	MaxAge      int    `mapstructure:"max_age"`
+	Compress    bool   `mapstructure:"compress"`
+	LogFileName string `mapstructure:"log_file_name"`
+	MaxBackup   int    `mapstructure:"max_backup"`
+	Encoding    string `mapstructure:"encoding"`
 }
 
 type Security struct {
@@ -21,25 +33,25 @@ type JWT struct {
 }
 
 type Server struct {
-	Addr    string        `json:"addr"`
-	Timeout time.Duration `json:"timeout"`
+	Addr    string        `mapstructure:"addr"`
+	Timeout time.Duration `mapstructure:"timeout"`
 }
 
 type Data struct {
-	Database *Database `json:"database,omitempty"`
-	Redis    *Redis    `json:"redis,omitempty"`
+	Database *Database `mapstructure:"database,omitempty"`
+	Redis    *Redis    `mapstructure:"redis,omitempty"`
 }
 
 type Database struct {
-	Driver string `json:"driver"`
-	Source string `json:"source"`
+	Driver string `mapstructure:"driver"`
+	Source string `mapstructure:"source"`
 }
 
 type Redis struct {
-	Addr        string        `json:"addr,omitempty"`
-	Password    string        `json:"password,omitempty"`
-	DB          int           `json:"db"`
-	ReadTimeout time.Duration `json:"read_timeout,omitempty"`
+	Addr        string        `mapstructure:"addr,omitempty"`
+	Password    string        `mapstructure:"password,omitempty"`
+	DB          int           `mapstructure:"db"`
+	ReadTimeout time.Duration `mapstructure:"read_timeout,omitempty"`
 }
 
 func New() (*Conf, error) {

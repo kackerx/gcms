@@ -9,15 +9,22 @@ import (
 )
 
 type UserHandler struct {
+	*Handler
 	userService *service.UserService
 }
 
-func NewUserHandler(userService *service.UserService) *UserHandler {
-	return &UserHandler{userService: userService}
+func NewUserHandler(handler *Handler, userService *service.UserService) *UserHandler {
+	return &UserHandler{Handler: handler, userService: userService}
 }
 
 func (h *UserHandler) GetUser(c *gin.Context) {
-	resp.ErrWithCode(c, code.ErrUnknownCode, "110")
+	user, err := h.userService.GetUser(c)
+	if err != nil {
+		resp.Err(c, err)
+		return
+	}
+
+	resp.Success(c, user)
 }
 func (h *UserHandler) Register(c *gin.Context) {
 	var req *service.RegisterReq
@@ -26,7 +33,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	res, err := h.userService.Register(c, req)
+	res, err := h.userService.Register(c.Request.Context(), req)
 	if err != nil {
 		resp.Err(c, err)
 		return
@@ -42,7 +49,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	login, err := h.userService.Login(c, &req)
+	login, err := h.userService.Login(c.Request.Context(), &req)
 	if err != nil {
 		resp.Err(c, err)
 		return

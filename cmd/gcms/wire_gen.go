@@ -14,23 +14,27 @@ import (
 	"gcms/internal/middleware"
 	"gcms/internal/server"
 	"gcms/internal/service"
+	"gcms/pkg/log"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 )
 
 // Injectors from wire.go:
 
-func wireApp(confData *conf.Data, confJwt *conf.JWT) (*gin.Engine, func(), error) {
+func wireApp(confData *conf.Data, confJwt *conf.JWT, logger *log.Logger) (*gin.Engine, func(), error) {
 	jwt := middleware.NewJwt(confJwt)
-	dataData, cleanup, err := data.NewData(confData)
+	handlerHandler := handler.NewHandler(logger)
+	redisCache := data.NewCache(confData)
+	serviceService := service.NewService(jwt, redisCache, logger)
+	dataData, cleanup, err := data.NewData(confData, logger)
 	if err != nil {
 		return nil, nil, err
 	}
 	userRepo := data.NewUserRepo(dataData)
 	userDomainService := domain.NewUserDomainService(userRepo)
-	userService := service.NewUserService(userDomainService)
-	userHandler := handler.NewUserHandler(userService)
-	engine := server.NewHTTPServer(jwt, userHandler)
+	userService := service.NewUserService(serviceService, userDomainService)
+	userHandler := handler.NewUserHandler(handlerHandler, userService)
+	engine := server.NewHTTPServer(logger, jwt, userHandler)
 	return engine, func() {
 		cleanup()
 	}, nil
@@ -40,12 +44,14 @@ func wireApp(confData *conf.Data, confJwt *conf.JWT) (*gin.Engine, func(), error
 
 var domainSet = wire.NewSet(domain.NewUserDomainService)
 
-var dataSet = wire.NewSet(data.NewData, data.NewUserRepo)
+var dataSet = wire.NewSet(data.NewData, data.NewUserRepo, data.NewCache)
 
-var serviceSet = wire.NewSet(service.NewUserService)
+var serviceSet = wire.NewSet(service.NewService, service.NewUserService)
 
-var handlerSet = wire.NewSet(handler.NewUserHandler)
+var handlerSet = wire.NewSet(handler.NewHandler, handler.NewUserHandler)
 
 var serverSet = wire.NewSet(server.NewHTTPServer)
 
 var jwtSet = wire.NewSet(middleware.NewJwt)
+
+var logSet = wire.NewSet(log.NewLog)
